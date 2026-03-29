@@ -10,13 +10,13 @@
     "compress",
     "gitignore"
   ],
-  "homepage": "https://github.com/athif/pack-cli",
+  "homepage": "https://github.com/athif23/pack-cli#readme",
   "bugs": {
-    "url": "https://github.com/athif/pack-cli/issues"
+    "url": "https://github.com/athif23/pack-cli/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/athif/pack-cli.git"
+    "url": "git+https://github.com/athif23/pack-cli.git"
   },
   "license": "MIT",
   "author": "Athif",
