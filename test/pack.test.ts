@@ -184,4 +184,154 @@ describe("foldpak CLI", () => {
       rmSync(fileWithSpace, { force: true });
     }
   });
+
+  it("excludes files from custom ignore file", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    const customIgnoreFile = join(fixture, ".customignore");
+    const ignoredFile = join(fixture, "ignored-by-custom.txt");
+
+    writeFileSync(customIgnoreFile, "ignored-by-custom.txt\n");
+    writeFileSync(ignoredFile, "content");
+    tempOutput = join(tempDir, "custom-ignore.zip");
+
+    try {
+      execSync(`${CLI} ${fixture} -o ${tempOutput} --ignore-file .customignore`, {
+        cwd: __dirname,
+      });
+
+      const entries = await extractZipEntries(tempOutput);
+      assert.ok(
+        !entries.includes("ignored-by-custom.txt"),
+        "should exclude files from custom ignore file",
+      );
+      assert.ok(entries.includes("package.json"), "should include other files");
+    } finally {
+      rmSync(customIgnoreFile, { force: true });
+      rmSync(ignoredFile, { force: true });
+    }
+  });
+
+  it("supports multiple custom ignore files", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    const ignoreFile1 = join(fixture, ".ignore1");
+    const ignoreFile2 = join(fixture, ".ignore2");
+    const ignoredFile1 = join(fixture, "ignored-1.txt");
+    const ignoredFile2 = join(fixture, "ignored-2.txt");
+
+    writeFileSync(ignoreFile1, "ignored-1.txt\n");
+    writeFileSync(ignoreFile2, "ignored-2.txt\n");
+    writeFileSync(ignoredFile1, "content");
+    writeFileSync(ignoredFile2, "content");
+    tempOutput = join(tempDir, "multi-ignore.zip");
+
+    try {
+      execSync(
+        `${CLI} ${fixture} -o ${tempOutput} --ignore-file .ignore1 --ignore-file .ignore2`,
+        { cwd: __dirname },
+      );
+
+      const entries = await extractZipEntries(tempOutput);
+      assert.ok(
+        !entries.includes("ignored-1.txt"),
+        "should exclude files from first ignore file",
+      );
+      assert.ok(
+        !entries.includes("ignored-2.txt"),
+        "should exclude files from second ignore file",
+      );
+      assert.ok(entries.includes("package.json"), "should include other files");
+    } finally {
+      rmSync(ignoreFile1, { force: true });
+      rmSync(ignoreFile2, { force: true });
+      rmSync(ignoredFile1, { force: true });
+      rmSync(ignoredFile2, { force: true });
+    }
+  });
+
+  it("combines custom ignore file with .gitignore", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    const gitignoredFile = join(fixture, "node_modules/test.js");
+    const customIgnoreFile = join(fixture, ".customignore");
+    const customIgnoredFile = join(fixture, "custom-ignored.txt");
+
+    mkdirSync(join(fixture, "node_modules"), { recursive: true });
+    writeFileSync(gitignoredFile, "content");
+    writeFileSync(customIgnoreFile, "custom-ignored.txt\n");
+    writeFileSync(customIgnoredFile, "content");
+    tempOutput = join(tempDir, "combined-ignore.zip");
+
+    // Create a .gitignore in the fixture
+    const gitignoreFile = join(fixture, ".gitignore");
+    let hadGitignore = false;
+    try {
+      statSync(gitignoreFile);
+      hadGitignore = true;
+    } catch {
+      hadGitignore = false;
+    }
+    writeFileSync(gitignoreFile, "node_modules/\n");
+
+    try {
+      execSync(`${CLI} ${fixture} -o ${tempOutput} --ignore-file .customignore`, {
+        cwd: __dirname,
+      });
+
+      const entries = await extractZipEntries(tempOutput);
+      assert.ok(
+        !entries.some((e) => e.includes("node_modules")),
+        "should exclude files from .gitignore",
+      );
+      assert.ok(
+        !entries.includes("custom-ignored.txt"),
+        "should exclude files from custom ignore file",
+      );
+      assert.ok(entries.includes("package.json"), "should include other files");
+    } finally {
+      rmSync(join(fixture, "node_modules"), { recursive: true, force: true });
+      rmSync(customIgnoreFile, { force: true });
+      rmSync(customIgnoredFile, { force: true });
+
+      // Restore original .gitignore state
+      if (!hadGitignore) {
+        rmSync(gitignoreFile, { force: true });
+      }
+    }
+  });
+
+  it("uses only custom ignore file when --no-gitignore", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    const customIgnoreFile = join(fixture, ".customignore");
+    const gitignoredFile = join(fixture, "gitignored-file.txt");
+    const customIgnoredFile = join(fixture, "custom-ignored.txt");
+
+    // Create .gitignore
+    const gitignoreFile = join(fixture, ".gitignore");
+    writeFileSync(gitignoreFile, "gitignored-file.txt\n");
+    writeFileSync(customIgnoreFile, "custom-ignored.txt\n");
+    writeFileSync(gitignoredFile, "content");
+    writeFileSync(customIgnoredFile, "content");
+    tempOutput = join(tempDir, "no-gitignore-custom.zip");
+
+    try {
+      execSync(
+        `${CLI} ${fixture} -o ${tempOutput} --no-gitignore --ignore-file .customignore`,
+        { cwd: __dirname },
+      );
+
+      const entries = await extractZipEntries(tempOutput);
+      assert.ok(
+        entries.includes("gitignored-file.txt"),
+        "should include files ignored by .gitignore when --no-gitignore",
+      );
+      assert.ok(
+        !entries.includes("custom-ignored.txt"),
+        "should still exclude files from custom ignore file",
+      );
+    } finally {
+      rmSync(gitignoreFile, { force: true });
+      rmSync(customIgnoreFile, { force: true });
+      rmSync(gitignoredFile, { force: true });
+      rmSync(customIgnoredFile, { force: true });
+    }
+  });
 });
