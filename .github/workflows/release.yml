@@ -31,10 +31,23 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Extract changelog for release
+        id: changelog
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "Extracting changelog for version $VERSION"
+          # Extract the section for this version from CHANGELOG.md
+          awk '/^## \['$VERSION'\]/{flag=1; next} /^## \[/{flag=0} flag{print}' CHANGELOG.md > RELEASE_NOTES.md
+          # If empty, use a default message
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "See CHANGELOG.md for details." > RELEASE_NOTES.md
+          fi
+          cat RELEASE_NOTES.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          generate_release_notes: true
+          body_path: RELEASE_NOTES.md
           files: |
             CHANGELOG.md
         env:
