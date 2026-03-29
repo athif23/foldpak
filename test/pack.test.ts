@@ -1,0 +1,187 @@
+import { describe, it, beforeEach, afterEach } from "node:test";
+import assert from "node:assert";
+import { execSync } from "node:child_process";
+import { mkdirSync, rmSync, writeFileSync, statSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import yauzl from "yauzl";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const projectRoot = join(__dirname, "..");
+const CLI = `tsx ${projectRoot}/src/cli.ts`;
+
+function extractZipEntries(zipPath: string): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    const entries: string[] = [];
+    yauzl.open(zipPath, { lazyEntries: true }, (err, zipfile) => {
+      if (err || !zipfile) {
+        reject(err);
+        return;
+      }
+      zipfile.readEntry();
+      zipfile.on("entry", (entry: { fileName: string }) => {
+        entries.push(entry.fileName);
+        zipfile.readEntry();
+      });
+      zipfile.on("end", () => resolve(entries));
+      zipfile.on("error", reject);
+    });
+  });
+}
+
+describe("pack CLI", () => {
+  let tempDir: string;
+  let tempOutput: string;
+
+  beforeEach(() => {
+    tempDir = join(
+      process.env["TEMP"] || "/tmp",
+      `pack-test-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    );
+    mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    try {
+      rmSync(tempDir, { recursive: true, force: true });
+    } catch {}
+    try {
+      if (tempOutput) rmSync(tempOutput, { force: true });
+    } catch {}
+  });
+
+  it("packages all files by default", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    tempOutput = join(tempDir, "simple.zip");
+
+    execSync(`${CLI} ${fixture} -o ${tempOutput}`, { cwd: __dirname });
+
+    const entries = await extractZipEntries(tempOutput);
+    assert.ok(entries.length > 0, "should create archive");
+  });
+
+  it("excludes files from root .gitignore by default", async () => {
+    const fixture = join(__dirname, "fixtures/gitignored");
+    tempOutput = join(tempDir, "gitignored.zip");
+
+    execSync(`${CLI} ${fixture} -o ${tempOutput}`, {
+      cwd: __dirname,
+    });
+
+    const entries = await extractZipEntries(tempOutput);
+    assert.ok(!entries.includes("dist/build.js"), "should exclude dist/");
+    assert.ok(entries.includes("src/main.ts"), "should include src/");
+  });
+
+  it("includes gitignored files with --no-gitignore", async () => {
+    const fixture = join(__dirname, "fixtures/gitignored");
+    tempOutput = join(tempDir, "no-gitignore.zip");
+
+    execSync(`${CLI} ${fixture} -o ${tempOutput} --no-gitignore`, {
+      cwd: __dirname,
+    });
+
+    const entries = await extractZipEntries(tempOutput);
+    assert.ok(entries.includes("dist/build.js"), "should include dist/ when --no-gitignore");
+    assert.ok(entries.includes("src/main.ts"), "should include src/");
+  });
+
+  it("includes only requested globs", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    tempOutput = join(tempDir, "included.zip");
+
+    execSync(
+      `${CLI} ${fixture} -o ${tempOutput} --include "src/**"`,
+      { cwd: __dirname },
+    );
+
+    const entries = await extractZipEntries(tempOutput);
+    assert.ok(entries.some((e) => e.startsWith("src/")), "should include src/");
+    assert.ok(
+      !entries.includes("package.json"),
+      "should exclude package.json",
+    );
+  });
+
+  it("excludes requested globs", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    tempOutput = join(tempDir, "excluded.zip");
+
+    execSync(
+      `${CLI} ${fixture} -o ${tempOutput} --exclude "src/**"`,
+      { cwd: __dirname },
+    );
+
+    const entries = await extractZipEntries(tempOutput);
+    assert.ok(!entries.some((e) => e.startsWith("src/")), "should exclude src/");
+    assert.ok(entries.includes("package.json"), "should include package.json");
+  });
+
+  it("preserves nested folder paths", async () => {
+    const fixture = join(__dirname, "fixtures/nested");
+    tempOutput = join(tempDir, "nested.zip");
+
+    execSync(`${CLI} ${fixture} -o ${tempOutput}`, { cwd: __dirname });
+
+    const entries = await extractZipEntries(tempOutput);
+    assert.ok(entries.some((e) => e.includes("sub/data.json")), "should include sub/data.json");
+    assert.ok(entries.some((e) => e.includes("sub/deep/file.md")), "should include sub/deep/file.md");
+  });
+
+  it("does not include output archive in itself", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    tempOutput = join(fixture, "simple.zip");
+
+    execSync(`${CLI} ${fixture} -o ${tempOutput}`, { cwd: __dirname });
+
+    const entries = await extractZipEntries(tempOutput);
+    assert.ok(
+      !entries.some((e) => e.includes("simple.zip")),
+      "should not include output archive",
+    );
+
+    rmSync(tempOutput, { force: true });
+  });
+
+  it("derives output name from source folder", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    tempOutput = join(tempDir, "simple.zip");
+
+    execSync(`${CLI} ${fixture} -o ${tempOutput}`, { cwd: __dirname });
+
+    const stat = statSync(tempOutput);
+    assert.ok(stat.size > 0, "output should have content");
+  });
+
+  it("reports error for non-existent source", () => {
+    try {
+      execSync(`${CLI} /nonexistent/path`, { cwd: __dirname });
+      assert.fail("should throw error");
+    } catch (err: any) {
+      assert.ok(
+        err.status !== 0,
+        "should exit with non-zero status",
+      );
+    }
+  });
+
+  it("handles spaces in filenames", async () => {
+    const fixture = join(__dirname, "fixtures/simple");
+    const fileWithSpace = join(fixture, "file with space.txt");
+    writeFileSync(fileWithSpace, "content");
+    tempOutput = join(tempDir, "spaces.zip");
+
+    try {
+      execSync(`${CLI} ${fixture} -o ${tempOutput}`, { cwd: __dirname });
+      const entries = await extractZipEntries(tempOutput);
+      assert.ok(
+        entries.some((e) => e.includes("file with space.txt")),
+        "should include file with spaces",
+      );
+    } finally {
+      rmSync(fileWithSpace, { force: true });
+    }
+  });
+});

@@ -1,0 +1,22 @@
+# Source files (only dist needed)
+src/
+tsconfig.json
+
+# Tests
+test/
+*.test.ts
+
+# Development
+.gitignore
+.npmignore
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+*.zip
+*.tgz
+
+# CI/CD
+.github/
