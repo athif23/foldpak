@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { cac, CAC } from "cac";
-import { packof } from "./packof.js";
+import { foldpak } from "./foldpak.js";
 
-const cli: CAC = cac("packof");
+const cli: CAC = cac("foldpak");
 
 cli
   .option("-o, --output <file>", "Output zip file path")
@@ -29,7 +29,7 @@ cli.command("[source]", "Directory to package (default: .)").action((source) => 
       ? [options.exclude] 
       : [];
 
-  packof({
+  foldpak({
     source: resolvedSource,
     output: options.output as string | undefined,
     gitignore: options.gitignore as boolean ?? true,

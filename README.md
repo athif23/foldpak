@@ -1,23 +1,23 @@
-# packof
+# foldpak
 
 A tiny CLI to package a folder into a zip archive with simple include, exclude, and `.gitignore` support.
 
 ## Install
 
 ```bash
-npm install -g packof
+npm install -g foldpak
 ```
 
 Or run directly with `npx`:
 
 ```bash
-npx packof .
+npx foldpak .
 ```
 
 ## Usage
 
 ```bash
-packof [source]
+foldpak [source]
 ```
 
 ### Options
@@ -32,25 +32,25 @@ packof [source]
 
 ```bash
 # Package current directory
-packof .
+foldpak .
 
 # Package a specific directory
-packof ./my-project
+foldpak ./my-project
 
 # Specify output file
-packof . -o my-app.zip
+foldpak . -o my-app.zip
 
 # Ignore .gitignore rules
-packof . --no-gitignore
+foldpak . --no-gitignore
 
 # Include only specific files
-packof . --include "src/**" --include "package.json"
+foldpak . --include "src/**" --include "package.json"
 
 # Exclude specific files (in addition to .gitignore)
-packof . --exclude "dist/**" --exclude "node_modules/**"
+foldpak . --exclude "dist/**" --exclude "node_modules/**"
 
 # Combine options
-packof . --include "dist/**" --exclude "**/*.map"
+foldpak . --include "dist/**" --exclude "**/*.map"
 ```
 
 ## Rule Summary
@@ -77,7 +77,7 @@ npm test
 
 ## Roadmap
 
-We are committed to making `packof` the most intuitive and versatile packaging tool for developers. Here are the features we are planning for future releases:
+We are committed to making `foldpak` the most intuitive and versatile packaging tool for developers. Here are the features we are planning for future releases:
 
 ### Archive Format Support
 - **Tar & Tar.GZ** — Support for `.tar` and `.tar.gz` archives for Unix-friendly workflows
@@ -86,8 +86,8 @@ We are committed to making `packof` the most intuitive and versatile packaging t
 
 ### Enhanced Functionality
 - **Nested `.gitignore` Support** — Respect `.gitignore` files recursively throughout the project tree
-- **Custom Ignore Files** — Support for `.packofignore` or arbitrary ignore file patterns
-- **Config File Support** — Per-project configuration via `.packofrc` or `packof.config.js`
+- **Custom Ignore Files** — Support for `.foldpakignore` or arbitrary ignore file patterns
+- **Config File Support** — Per-project configuration via `.foldpakrc` or `foldpak.config.js`
 - **Watch Mode** — Auto-repackage on file changes during development
 
 ### Developer Experience
@@ -96,4 +96,9 @@ We are committed to making `packof` the most intuitive and versatile packaging t
 - **Strip Root Option** — Option to include/exclude the root directory in the archive
 - **Progress Indicators** — Visual feedback for large directories
 
-Have a suggestion? [Open an issue](https://github.com/athif23/packof/issues) — we'd love to hear from you!
+### Distribution & Integration
+- **Prebuilt Binaries** — Standalone executables for major platforms (no Node.js required)
+- **GitHub Action** — Official action for CI/CD workflows
+- **Checksum Generation** — Automatic SHA256 checksums for integrity verification
+
+Have a suggestion? [Open an issue](https://github.com/athif23/foldpak/issues) — we'd love to hear from you!

@@ -1,5 +1,5 @@
 {
-  "name": "packof",
+  "name": "foldpak",
   "version": "1.0.0",
   "description": "A tiny CLI to package a folder into a zip archive",
   "keywords": [
@@ -8,21 +8,23 @@
     "cli",
     "pack",
     "compress",
-    "gitignore"
+    "gitignore",
+    "folder",
+    "directory"
   ],
-  "homepage": "https://github.com/athif23/packof#readme",
+  "homepage": "https://github.com/athif23/foldpak#readme",
   "bugs": {
-    "url": "https://github.com/athif23/packof/issues"
+    "url": "https://github.com/athif23/foldpak/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/athif23/packof.git"
+    "url": "git+https://github.com/athif23/foldpak.git"
   },
   "license": "MIT",
   "author": "Athif",
   "type": "module",
   "bin": {
-    "packof": "./dist/cli.js"
+    "foldpak": "./dist/cli.js"
   },
   "files": [
     "dist/",

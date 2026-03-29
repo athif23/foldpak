@@ -31,7 +31,7 @@ function extractZipEntries(zipPath: string): Promise<string[]> {
   });
 }
 
-describe("packof CLI", () => {
+describe("foldpak CLI", () => {
   let tempDir: string;
   let tempOutput: string;
 
