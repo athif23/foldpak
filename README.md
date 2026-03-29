@@ -24,6 +24,7 @@ foldpak [source]
 
 - `-o, --output <file>` — Output zip file path
 - `--no-gitignore` — Don't use .gitignore rules (by default, .gitignore is respected)
+- `--ignore-file <file>` — Load ignore patterns from custom file (can be repeated)
 - `-i, --include <glob>` — Include files matching glob (can be repeated)
 - `-e, --exclude <glob>` — Exclude files matching glob (can be repeated)
 - `--verbose` — Show detailed output
@@ -51,6 +52,12 @@ foldpak . -e "dist/**" -e "node_modules/**"
 
 # Combine options
 foldpak . --include "dist/**" --exclude "**/*.map"
+
+# Use custom ignore file
+foldpak . --ignore-file .foldpakignore
+
+# Use multiple ignore files
+foldpak . --ignore-file .foldpakignore --ignore-file .dockerignore
 ```
 
 ## Rule Summary
@@ -86,7 +93,6 @@ We are committed to making `foldpak` the most intuitive and versatile packaging 
 
 ### Enhanced Functionality
 - **Nested `.gitignore` Support** — Respect `.gitignore` files recursively throughout the project tree
-- **Custom Ignore Files** — Support for `.foldpakignore` or arbitrary ignore file patterns
 - **Config File Support** — Per-project configuration via `.foldpakrc` or `foldpak.config.js`
 - **Watch Mode** — Auto-repackage on file changes during development
 
