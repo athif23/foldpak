@@ -74,3 +74,31 @@ The compiled CLI will be at `dist/cli.js`.
 ```bash
 npm test
 ```
+
+## Roadmap
+
+We are committed to making `packof` the most intuitive and versatile packaging tool for developers. Here are the features we are planning for future releases:
+
+### Archive Format Support
+- **Tar & Tar.GZ** — Support for `.tar` and `.tar.gz` archives for Unix-friendly workflows
+- **7-Zip** — Support for `.7z` format with higher compression ratios
+- **Tar.ZST** — Support for Zstandard-compressed tarballs for modern compression speeds
+
+### Enhanced Functionality
+- **Nested `.gitignore` Support** — Respect `.gitignore` files recursively throughout the project tree
+- **Custom Ignore Files** — Support for `.packofignore` or arbitrary ignore file patterns
+- **Config File Support** — Per-project configuration via `.packofrc` or `packof.config.js`
+- **Watch Mode** — Auto-repackage on file changes during development
+
+### Developer Experience
+- **Dry Run Mode** — Preview what would be packaged without creating the archive
+- **List Contents** — View archive contents without extracting
+- **Strip Root Option** — Option to include/exclude the root directory in the archive
+- **Progress Indicators** — Visual feedback for large directories
+
+### Distribution & Integration
+- **Prebuilt Binaries** — Standalone executables for major platforms (no Node.js required)
+- **GitHub Action** — Official action for CI/CD workflows
+- **Checksum Generation** — Automatic SHA256 checksums for integrity verification
+
+Have a suggestion? [Open an issue](https://github.com/athif23/packof/issues) — we'd love to hear from you!
