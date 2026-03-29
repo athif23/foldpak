@@ -31,7 +31,7 @@ function extractZipEntries(zipPath: string): Promise<string[]> {
   });
 }
 
-describe("pack CLI", () => {
+describe("packof CLI", () => {
   let tempDir: string;
   let tempOutput: string;
 
