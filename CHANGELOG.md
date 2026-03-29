@@ -1,34 +1,39 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file.
 
-### [1.0.2](https://github.com/athif23/foldpak/compare/v1.0.1...v1.0.2) (2026-03-29)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
 
-### Features
+### Added
+- New features
 
-* add short flags -i and -e for include/exclude ([d28649d](https://github.com/athif23/foldpak/commit/d28649d))
+### Changed
+- Changes to existing functionality
 
+### Fixed
+- Bug fixes
 
-### Bug Fixes
+### Removed
+- Removed features
 
-* update repository URL ([23459ba](https://github.com/athif23/foldpak/commit/23459ba))
+---
 
+## [1.0.2] - 2026-03-29
 
-### [1.0.1](https://github.com/athif23/foldpak/compare/v1.0.0...v1.0.1) (2026-03-29)
+### Added
+- Added `-i` and `-e` short flags for `--include` and `--exclude`
 
+## [1.0.1] - 2026-03-29
 
-### Bug Fixes
+### Changed
+- Renamed project to `foldpak`
 
-* rename project to foldpak ([e8c8041](https://github.com/athif23/foldpak/commit/e8c8041))
+## [1.0.0] - 2026-03-29
 
-
-### [1.0.0](https://github.com/athif23/foldpak/releases/tag/v1.0.0) (2026-03-29)
-
-
-### Features
-
-* Initial release
-* Package folders to zip with .gitignore support
-* Include/exclude glob patterns
-* Verbose output mode
+### Added
+- Initial release
+- Package folders to zip with `.gitignore` support
+- Include/exclude glob patterns
+- Verbose output mode
