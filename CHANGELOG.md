@@ -6,17 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
-- New features
+## [1.0.4] - 2026-03-29
 
-### Changed
-- Changes to existing functionality
+### Added
+- Added tests for custom ignore file feature
 
 ### Fixed
-- Bug fixes
+- Fixed fixture folder naming conflict with root .gitignore
 
-### Removed
-- Removed features
+### Changed
+- Updated README with --ignore-file documentation
 
 ## [1.0.3] - 2026-03-29
 
